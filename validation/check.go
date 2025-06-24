@@ -27,5 +27,21 @@ func FileExist(filePath string) (bool, error) {
 }
 
 func DirPathExist(dirPath string) bool {
+	info, err := os.Stat(dirPath)
+	if os.IsNotExist(err) {
+		return false
+	}
+	if err != nil {
+		fmt.Println("Error accessing path")
+		fmt.Println(err)
+		return false
+	}
+	fmt.Printf("✅ Valid path (%s)\n", func() string {
+		if info.IsDir() {
+			return "directory"
+		}
+		return "file"
+	}())
 	return true
+
 }
