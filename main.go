@@ -28,23 +28,30 @@ func main() {
 		fmt.Printf("Enter Path: ")
 		fmt.Scan(&dirPath)
 
-		fmt.Printf("Enter File Name: ")
-		fileName, _ := reader.ReadString('\n')
-		fileName = strings.TrimSpace(fileName)
+		valid := check.DirPathExist(dirPath)
+		if valid {
+			fmt.Printf("Enter File Name: ")
+			fileName, _ := reader.ReadString('\n')
+			fileName = strings.TrimSpace(fileName)
 
-		filePath := dirPath + "/" + fileName + ".json"
+			filePath := dirPath + "/" + fileName + ".json"
 
-		exists, err := check.FileExist(filePath)
-		if err != nil {
-			fmt.Println("Error while checking")
-			fmt.Println(err)
-			return
-		}
-		if exists {
-			fmt.Println("\nFile already exist")
+			exists, err := check.FileExist(filePath)
+			if err != nil {
+				fmt.Println("Error while checking")
+				fmt.Println(err)
+				return
+			}
+			if exists {
+				fmt.Println("\nFile already exist")
+			} else {
+				file.ImportfromAPI(apiUrl, filePath)
+				fmt.Println("API response stored!")
+			}
 		} else {
-			file.ImportfromAPI(apiUrl, filePath)
-			fmt.Println("API response stored!")
+			fmt.Println("Please enter valid path!")
+			fmt.Printf("Enter Path: ")
+			fmt.Scan(&dirPath)
 		}
 	} else if api == 2 {
 		var dirPath string

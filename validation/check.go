@@ -45,3 +45,7 @@ func DirPathExist(dirPath string) bool {
 	return true
 
 }
+
+func APIresponse(apiUrl string) {
+	// to be done
+}
