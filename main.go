@@ -10,144 +10,137 @@ import (
 )
 
 func main() {
-	var choice int
+
 	reader := bufio.NewReader(os.Stdin)
-	var api int
+	invalidCounter := 0
 
-	functionalities := []string{"Import from API", "Create from Scratch", "View files in directory", "Delete"}
-	vude := []string{"View", "Update", "Delete", "End"}
+	functionalities := []string{"Import from API", "Create from Scratch", "View files in directory", "Delete a file", "Quit"}
+	vude := []string{"View", "Update", "Delete", "Back to Main Menu"}
 
-	api = file.PromptChoice(functionalities)
-	if api == 1 {
-		var apiUrl, dirPath string
-		fmt.Println("Please provide the api url!")
-		fmt.Printf("API Url: ")
-		fmt.Scan(&apiUrl)
+	for {
+		if invalidCounter >= 3 {
+			fmt.Println("\nYou have entered invalid options 3 times. Exiting now!")
+			break
+		}
 
-		fmt.Println("Please specify the directory path")
-		fmt.Printf("Enter Path: ")
-		fmt.Scan(&dirPath)
+		api := file.PromptChoice(functionalities)
 
-		valid := check.DirPathExist(dirPath)
-		if valid {
-			fmt.Printf("Enter File Name: ")
+		switch api {
+		case 1: // Import from API
+			var apiUrl, dirPath string
+			fmt.Print("API Url: ")
+			fmt.Scan(&apiUrl)
+
+			fmt.Print("Enter Directory Path: ")
+			fmt.Scan(&dirPath)
+
+			if check.DirPathExist(dirPath) {
+				fmt.Print("Enter File Name: ")
+				fileName, _ := reader.ReadString('\n')
+				fileName = strings.TrimSpace(fileName)
+				filePath := dirPath + "/" + fileName + ".json"
+
+				if exists, err := check.FileExist(filePath); err != nil {
+					fmt.Println("Error:", err)
+					continue
+				} else if exists {
+					fmt.Println("File already exists.")
+				} else {
+					file.ImportfromAPI(apiUrl, filePath)
+					fmt.Println("API response stored.")
+				}
+			} else {
+				fmt.Println("Invalid path.")
+				invalidCounter++
+			}
+
+		case 2: // Create from Scratch
+			var dirPath string
+			fmt.Print("Enter Directory Path: ")
+			fmt.Scan(&dirPath)
+
+			fmt.Print("Enter File Name: ")
 			fileName, _ := reader.ReadString('\n')
 			fileName = strings.TrimSpace(fileName)
+			filePath := dirPath + "/" + fileName
 
-			filePath := dirPath + "/" + fileName + ".json"
-
-			exists, err := check.FileExist(filePath)
-			if err != nil {
-				fmt.Println("Error while checking")
-				fmt.Println(err)
-				return
-			}
-			if exists {
-				fmt.Println("\nFile already exist")
+			if exists, err := check.FileExist(filePath); err != nil {
+				fmt.Println("Error:", err)
+				continue
+			} else if exists {
+				fmt.Println("File already exists.")
 			} else {
-				file.ImportfromAPI(apiUrl, filePath)
-				fmt.Println("API response stored!")
+				file.CreateFile(filePath, fileName)
+				fmt.Println("\nWrite your content (end input with a blank line):")
+				fullText := file.MultiLineInput()
+				file.WriteFile(filePath, fullText)
 			}
-		} else {
-			fmt.Println("Please enter valid path!")
-			fmt.Printf("Enter Path: ")
-			fmt.Scan(&dirPath)
-		}
-	} else if api == 2 {
-		var dirPath string
-		fmt.Println("Please specify the directory path")
-		fmt.Printf("Enter Path: ")
 
-		fmt.Println("What would you like to name the file?")
-		fmt.Printf("Enter File Name: ")
-		fileName, _ := reader.ReadString('\n')
-		fileName = strings.TrimSpace(fileName)
-		filePath := dirPath + "/" + fileName
-
-		exists, err := check.FileExist(filePath)
-		if err != nil {
-			fmt.Println("Error while checking")
-			fmt.Println(err)
-			return
-		}
-		if exists {
-			fmt.Println("\nFile already exist")
-			choice = file.PromptChoice(vude)
-		} else {
-			fmt.Println("\nCreating the file")
-			file.CreateFile(filePath, fileName)
-			fmt.Println("\nPlease write the content of the file")
-			fullText := file.MultiLineInput()
-			file.WriteFile(filePath, fullText)
-		}
-
-		choice = file.PromptChoice(vude)
-		for {
-			invalidCounter := 0
-			if choice == 1 {
-				fmt.Println("\nFile Content:")
-				file.DisplayFile(filePath)
-				break
-			} else if choice == 2 {
-				isEmpty := check.IsEmpty(filePath)
-				if isEmpty {
+			for {
+				choice := file.PromptChoice(vude)
+			fileLoop:
+				switch choice {
+				case 1:
 					file.DisplayFile(filePath)
-					updatedContent := file.MultiLineInput()
-					file.UpdateFile(filePath, updatedContent)
-				} else {
-					file.DisplayFile(filePath)
-					updatedContent := "\n" + file.MultiLineInput()
-					file.UpdateFile(filePath, updatedContent)
+				case 2:
+					if check.IsEmpty(filePath) {
+						fmt.Println("File is empty.")
+						updatedContent := file.MultiLineInput()
+						file.UpdateFile(filePath, updatedContent)
+					} else {
+						file.DisplayFile(filePath)
+						updatedContent := "\n" + file.MultiLineInput()
+						file.UpdateFile(filePath, updatedContent)
+					}
+				case 3:
+					file.DeleteFile(filePath, fileName)
+					break fileLoop
+				case 4:
+					fmt.Println("Returning to Main Menu.")
+					break fileLoop
+				default:
+					fmt.Println("Invalid choice.")
+					invalidCounter++
+					if invalidCounter >= 3 {
+						fmt.Println("Too many invalid attempts.")
+						return
+					}
 				}
-				choice = file.PromptChoice(vude)
-			} else if choice == 3 {
-				file.DeleteFile(filePath, fileName)
-				break
-			} else if choice == 4 {
-				fmt.Println("Sure!")
-				break
-			} else {
-				invalidCounter++
-				if invalidCounter > 2 {
-					fmt.Println("\nYou have entered the invalid choice 3 times!")
+				if choice == 3 || choice == 4 {
 					break
-				} else {
-					fmt.Printf("\nDid not find what you were looking for!")
-					fmt.Printf("\nPlease re-enter your choice: ")
-					fmt.Scan(&choice)
 				}
 			}
-		}
 
-	} else if api == 3 {
-		var dirPath string
-		fmt.Println("Please enter the directory path")
-		fmt.Printf("Enter path: ")
-		fmt.Scan(&dirPath)
-		file.ReadDir(dirPath)
-	} else if api == 4 {
-		var dirPath string
-		fmt.Println("Enter the directory path of the file: ")
-		fmt.Printf("Enter path: ")
-		fmt.Scan(&dirPath)
-		fmt.Println("Please enter the file you want to delete")
-		fmt.Printf("Enter the file: ")
-		toDelete, _ := reader.ReadString('\n')
+		case 3: // View Directory
+			var dirPath string
+			fmt.Print("Enter Directory Path: ")
+			fmt.Scan(&dirPath)
+			file.ReadDir(dirPath)
 
-		filePath := dirPath + "/" + toDelete
-		filePath = strings.TrimSpace(filePath)
-		exists, err := check.FileExist(filePath)
-		if err != nil {
-			fmt.Println("Error while deleting")
-			fmt.Println(err)
-		}
-		if exists {
-			file.DeleteFile(filePath, toDelete)
-		} else {
-			fmt.Println("File not found!")
-		}
+		case 4: // Delete File
+			var dirPath string
+			fmt.Print("Enter Directory Path: ")
+			fmt.Scan(&dirPath)
+			fmt.Print("Enter File Name to Delete: ")
+			toDelete, _ := reader.ReadString('\n')
+			filePath := strings.TrimSpace(dirPath + "/" + toDelete)
 
-	} else {
-		// to be ha
+			if exists, err := check.FileExist(filePath); err != nil {
+				fmt.Println("Error:", err)
+			} else if exists {
+				file.DeleteFile(filePath, toDelete)
+			} else {
+				fmt.Println("File does not exist.")
+				invalidCounter++
+			}
+
+		case 5: // Quit
+			fmt.Println("Thank you for using the File Manager. Goodbye!")
+			return
+
+		default:
+			fmt.Println("Invalid option. Try again.")
+			invalidCounter++
+		}
 	}
 }
