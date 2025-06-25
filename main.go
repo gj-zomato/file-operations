@@ -138,7 +138,7 @@ func main() {
 			fmt.Println("Thank you for using the File Manager. Goodbye!")
 			return
 
-		default:
+		default: // Navigation Loop (break only if invalid entry >=3)
 			fmt.Println("Invalid option. Try again.")
 			invalidCounter++
 		}
