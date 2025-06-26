@@ -127,7 +127,6 @@ func DeleteFile(filePath, toDelete string) {
 		fmt.Println("Error while deleting the file!")
 		fmt.Println(err)
 	}
-	fmt.Printf("%s deleted successfully!\n", strings.TrimSpace(toDelete))
 }
 
 func FormatSize(bytes int64) string {
@@ -155,7 +154,7 @@ func ReadDir(dirPath string) {
 		fmt.Println("Error while reading the directory")
 		fmt.Println(err)
 	}
-	fmt.Println("Here are the files present in", filepath.Base(dirPath))
+	fmt.Println("\nHere are the files present in", filepath.Base(dirPath))
 	for _, file := range files {
 		if !file.IsDir() {
 			fullPath := filepath.Join(dirPath, file.Name())
