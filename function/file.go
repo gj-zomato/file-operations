@@ -26,8 +26,7 @@ func PromptChoice(options []string) int {
 func CreateFile(filePath, fileName string) {
 	file, err := os.Create(filePath)
 	if err != nil {
-		fmt.Println("❌ Failed to create the file:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to create the file:", err)
 		return
 	}
 	defer file.Close()
@@ -45,8 +44,7 @@ func MultiLineInput() string {
 		fmt.Print("> ")
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println("❌ Error reading input:")
-			fmt.Println(err)
+			fmt.Println("❌ Error reading input:", err)
 			break
 		}
 		line = strings.TrimSpace(line)
@@ -63,8 +61,7 @@ func MultiLineInput() string {
 func WriteFile(filePath, input string) {
 	err := os.WriteFile(filePath, []byte(input), 0644)
 	if err != nil {
-		fmt.Println("❌ Failed to write to file:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to write to file:", err)
 	}
 }
 
@@ -72,8 +69,7 @@ func WriteFile(filePath, input string) {
 func DisplayFile(filePath string) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println("❌ Failed to open file:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to open file:", err)
 		return
 	}
 	defer file.Close()
@@ -85,8 +81,7 @@ func DisplayFile(filePath string) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println("❌ Error reading file content:")
-		fmt.Println(err)
+		fmt.Println("❌ Error reading file content:", err)
 	}
 }
 
@@ -94,15 +89,13 @@ func DisplayFile(filePath string) {
 func UpdateFile(filePath, updatedContent string) {
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println("❌ Failed to open file for appending:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to open file for appending:", err)
 		return
 	}
 	defer file.Close()
 
 	if _, err := file.WriteString(updatedContent); err != nil {
-		fmt.Println("❌ Failed to write to file:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to write to file:", err)
 	} else {
 		fmt.Println("✅ Content updated successfully!")
 	}
@@ -112,24 +105,21 @@ func UpdateFile(filePath, updatedContent string) {
 func ImportfromAPI(apiUrl, filePath string) error {
 	resp, err := http.Get(apiUrl)
 	if err != nil {
-		fmt.Println("❌ Failed to fetch from API:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to fetch from API:", err)
 		return err
 	}
 	defer resp.Body.Close()
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		fmt.Println("❌ Failed to create file for API response:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to create file for API response:", err)
 		return err
 	}
 	defer file.Close()
 
 	_, copyErr := io.Copy(file, resp.Body)
 	if copyErr != nil {
-		fmt.Println("❌ Failed to write API response to file:")
-		fmt.Println(copyErr)
+		fmt.Println("❌ Failed to write API response to file:", copyErr)
 		return copyErr
 	}
 
@@ -141,8 +131,7 @@ func ImportfromAPI(apiUrl, filePath string) error {
 func DeleteFile(filePath, fileName string) {
 	err := os.Remove(filePath)
 	if err != nil {
-		fmt.Println("❌ Failed to delete file:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to delete file:", err)
 	}
 }
 
@@ -169,8 +158,7 @@ func FormatSize(bytes int64) string {
 func ReadDir(dirPath string) {
 	files, err := os.ReadDir(dirPath)
 	if err != nil {
-		fmt.Println("❌ Failed to read the directory:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to read the directory:", err)
 		return
 	}
 
