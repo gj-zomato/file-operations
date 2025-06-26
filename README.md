@@ -1,7 +1,3 @@
-Sure! Here's a complete `README.md` for your [`file-operations`](https://github.com/gj-zomato/file-operations/tree/main/function) project hosted on GitHub.
-
----
-
 ## 📁 File Operations CLI (Go)
 
 A terminal-based file management tool written in Go 🧑‍💻. This CLI app allows you to **create**, **edit**, **view**, and **delete** `.txt` files interactively, with support for importing data from APIs and displaying file metadata (like size).
