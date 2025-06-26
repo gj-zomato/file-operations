@@ -10,8 +10,7 @@ import (
 func IsEmpty(filePath string) bool {
 	info, err := os.Stat(filePath)
 	if err != nil {
-		fmt.Println("❌ Failed to check file status:")
-		fmt.Println(err)
+		fmt.Println("❌ Failed to check file status:", err)
 		return false
 	}
 	return info.Size() == 0
@@ -36,8 +35,7 @@ func DirPathExist(dirPath string) bool {
 		return false
 	}
 	if err != nil {
-		fmt.Println("❌ Error accessing the directory:")
-		fmt.Println(err)
+		fmt.Println("❌ Error accessing the directory:", err)
 		return false
 	}
 	if !info.IsDir() {
@@ -45,9 +43,4 @@ func DirPathExist(dirPath string) bool {
 		return false
 	}
 	return true
-}
-
-// APIresponse – Placeholder for future implementation
-func APIresponse(apiUrl string) {
-	fmt.Println("🚧 API response check not implemented yet.")
 }
