@@ -16,7 +16,7 @@ func PromptChoice(options []string) int {
 	for i, opt := range options {
 		fmt.Printf("Press %d - %s\n", i+1, opt)
 	}
-	fmt.Print("👉 Enter your choice: ")
+	fmt.Printf("👉 Enter your choice: ")
 	var choice int
 	fmt.Scan(&choice)
 	return choice
@@ -31,7 +31,7 @@ func CreateFile(filePath, fileName string) {
 	}
 	defer file.Close()
 
-	fmt.Printf("✅ '%s' has been created successfully!\n", fileName)
+	fmt.Println("\n✅ File has been created successfully!")
 	fmt.Printf("📍 Path: %s\n", filePath)
 }
 
@@ -39,7 +39,6 @@ func CreateFile(filePath, fileName string) {
 func MultiLineInput() string {
 	var lines []string
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("📝 Start typing your content (type 'END' to finish):")
 	for {
 		fmt.Print("> ")
 		line, err := reader.ReadString('\n')
@@ -53,7 +52,6 @@ func MultiLineInput() string {
 		}
 		lines = append(lines, line)
 	}
-	fmt.Println("✅ Content captured successfully!")
 	return strings.Join(lines, "\n")
 }
 
@@ -74,7 +72,6 @@ func DisplayFile(filePath string) {
 	}
 	defer file.Close()
 
-	fmt.Println("📄 File Content:")
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		fmt.Println("> " + scanner.Text())
@@ -96,8 +93,6 @@ func UpdateFile(filePath, updatedContent string) {
 
 	if _, err := file.WriteString(updatedContent); err != nil {
 		fmt.Println("❌ Failed to write to file:", err)
-	} else {
-		fmt.Println("✅ Content updated successfully!")
 	}
 }
 
