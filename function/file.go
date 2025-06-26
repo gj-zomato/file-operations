@@ -10,125 +10,143 @@ import (
 	"strings"
 )
 
+// PromptChoice shows a list of options and captures user input
 func PromptChoice(options []string) int {
-	fmt.Println("\nWhat would you like to do?")
+	fmt.Println("\n🤖 What would you like to do?")
 	for i, opt := range options {
 		fmt.Printf("Press %d - %s\n", i+1, opt)
 	}
-	fmt.Print("Choice: ")
+	fmt.Print("👉 Enter your choice: ")
 	var choice int
 	fmt.Scan(&choice)
 	return choice
 }
 
+// CreateFile creates an empty file at the specified path
 func CreateFile(filePath, fileName string) {
 	file, err := os.Create(filePath)
 	if err != nil {
-		fmt.Println("Error while creating the file:")
+		fmt.Println("❌ Failed to create the file:")
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("\n%s file is created!\n", fileName)
-	fmt.Printf("Path: %s", filePath)
 	defer file.Close()
+
+	fmt.Printf("✅ '%s' has been created successfully!\n", fileName)
+	fmt.Printf("📍 Path: %s\n", filePath)
 }
 
+// MultiLineInput captures multiline input from the user until "END"
 func MultiLineInput() string {
 	var lines []string
 	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("📝 Start typing your content (type 'END' to finish):")
 	for {
 		fmt.Print("> ")
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println("Error while reading the file")
+			fmt.Println("❌ Error reading input:")
 			fmt.Println(err)
 			break
 		}
 		line = strings.TrimSpace(line)
-
-		if line == "END" || line == "end" {
+		if strings.EqualFold(line, "end") {
 			break
 		}
 		lines = append(lines, line)
 	}
-
-	fullText := strings.Join(lines, "\n")
-	fmt.Println("Content is added successfully!")
-	return fullText
+	fmt.Println("✅ Content captured successfully!")
+	return strings.Join(lines, "\n")
 }
 
+// WriteFile writes the given content to the specified file
 func WriteFile(filePath, input string) {
 	err := os.WriteFile(filePath, []byte(input), 0644)
 	if err != nil {
-		fmt.Println("Error writing to file")
+		fmt.Println("❌ Failed to write to file:")
 		fmt.Println(err)
-		return
 	}
 }
 
+// DisplayFile prints the contents of a file line by line
 func DisplayFile(filePath string) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println("Error while displaying the file")
+		fmt.Println("❌ Failed to open file:")
 		fmt.Println(err)
 		return
 	}
 	defer file.Close()
 
+	fmt.Println("📄 File Content:")
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		fmt.Println("> " + scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println("Error while reading the file")
+		fmt.Println("❌ Error reading file content:")
 		fmt.Println(err)
 	}
 }
 
+// UpdateFile appends new content to an existing file
 func UpdateFile(filePath, updatedContent string) {
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println("Error while append")
+		fmt.Println("❌ Failed to open file for appending:")
 		fmt.Println(err)
+		return
 	}
 	defer file.Close()
 
 	if _, err := file.WriteString(updatedContent); err != nil {
-		fmt.Println("Failed to write to file")
+		fmt.Println("❌ Failed to write to file:")
 		fmt.Println(err)
+	} else {
+		fmt.Println("✅ Content updated successfully!")
 	}
 }
 
+// ImportfromAPI fetches data from the provided API and stores it in a file
 func ImportfromAPI(apiUrl, filePath string) error {
 	resp, err := http.Get(apiUrl)
 	if err != nil {
-		fmt.Println("Error while gettng the response!")
-		fmt.Println()
+		fmt.Println("❌ Failed to fetch from API:")
+		fmt.Println(err)
+		return err
 	}
+	defer resp.Body.Close()
+
 	file, err := os.Create(filePath)
 	if err != nil {
-		fmt.Println("Error while opening the file!")
+		fmt.Println("❌ Failed to create file for API response:")
 		fmt.Println(err)
+		return err
 	}
 	defer file.Close()
 
-	_, errors := io.Copy(file, resp.Body)
-	if errors != nil {
-		fmt.Println("Error while copying")
-		fmt.Println(err)
+	_, copyErr := io.Copy(file, resp.Body)
+	if copyErr != nil {
+		fmt.Println("❌ Failed to write API response to file:")
+		fmt.Println(copyErr)
+		return copyErr
 	}
+
+	fmt.Println("✅ API response saved successfully!")
 	return nil
 }
 
-func DeleteFile(filePath, toDelete string) {
+// DeleteFile removes the specified file
+func DeleteFile(filePath, fileName string) {
 	err := os.Remove(filePath)
 	if err != nil {
-		fmt.Println("Error while deleting the file!")
+		fmt.Println("❌ Failed to delete file:")
 		fmt.Println(err)
 	}
 }
 
+// FormatSize returns human-readable file size
 func FormatSize(bytes int64) string {
 	const (
 		KB = 1024
@@ -137,7 +155,6 @@ func FormatSize(bytes int64) string {
 	)
 	switch {
 	case bytes >= GB:
-		// switch case for bytes
 		return fmt.Sprintf("%.2f GB", float64(bytes)/GB)
 	case bytes >= MB:
 		return fmt.Sprintf("%.2f MB", float64(bytes)/MB)
@@ -148,31 +165,23 @@ func FormatSize(bytes int64) string {
 	}
 }
 
+// ReadDir lists all files and folders in the given directory
 func ReadDir(dirPath string) {
 	files, err := os.ReadDir(dirPath)
 	if err != nil {
-		fmt.Println("Error while reading the directory")
+		fmt.Println("❌ Failed to read the directory:")
 		fmt.Println(err)
+		return
 	}
-	fmt.Println("\nHere are the files present in", filepath.Base(dirPath))
+
+	fmt.Printf("\n📁 Contents of '%s':\n", filepath.Base(dirPath))
 	for _, file := range files {
-		if !file.IsDir() {
-			fullPath := filepath.Join(dirPath, file.Name())
-			info, err := os.Stat(fullPath)
-			if err != nil {
-				fmt.Println("Error while getting the size")
-				fmt.Println(err)
-			}
-			fmt.Printf("- %s : %s\n", file.Name(), FormatSize(info.Size()))
+		fullPath := filepath.Join(dirPath, file.Name())
+		info, err := os.Stat(fullPath)
+		if err != nil {
+			fmt.Println("⚠️  Could not get info for", file.Name())
+			continue
 		}
-		if file.IsDir() {
-			fullPath := filepath.Join(dirPath, file.Name())
-			info, err := os.Stat(fullPath)
-			if err != nil {
-				fmt.Println("Error while getting the size")
-				fmt.Println(err)
-			}
-			fmt.Printf("- %s : %s\n", file.Name(), FormatSize(info.Size()))
-		}
+		fmt.Printf("• %s — %s\n", file.Name(), FormatSize(info.Size()))
 	}
 }
