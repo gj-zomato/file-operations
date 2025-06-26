@@ -36,12 +36,12 @@ func DirPathExist(dirPath string) bool {
 		fmt.Println(err)
 		return false
 	}
-	fmt.Printf("Valid path (%s)\n", func() string {
+	func() string {
 		if info.IsDir() {
 			return "directory"
 		}
 		return "file"
-	}())
+	}()
 	return true
 
 }
