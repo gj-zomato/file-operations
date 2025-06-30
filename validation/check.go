@@ -39,7 +39,7 @@ func DirPathExist(dirPath string) bool {
 		return false
 	}
 	if !info.IsDir() {
-		fmt.Println("⚠️  The given path is not a directory.")
+		fmt.Println("⚠️ The given path is not a directory.")
 		return false
 	}
 	return true
