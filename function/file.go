@@ -117,8 +117,6 @@ func ImportfromAPI(apiUrl, filePath string) error {
 		fmt.Println("❌ Failed to write API response to file:", copyErr)
 		return copyErr
 	}
-
-	fmt.Println("✅ API response saved successfully!")
 	return nil
 }
 
