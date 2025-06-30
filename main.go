@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	file "file-operations/function"
+	input "file-operations/input"
 	check "file-operations/validation"
 	"fmt"
 	"os"
@@ -14,7 +15,7 @@ func main() {
 	invalidCounter := 0
 	var dirPath string
 
-	// Ask for directory path once at the beginning
+	// Ask for directory path
 	for {
 		fmt.Print("📂 Enter your working directory path: ")
 		fmt.Scan(&dirPath)
@@ -27,7 +28,7 @@ func main() {
 		}
 	}
 
-	// Updated main menu with 'Change Directory'
+	// Main Menu
 	mainOptions := []string{
 		"Create 🆕",
 		"Edit ✏️",
@@ -45,55 +46,65 @@ func main() {
 		}
 
 		fmt.Println("\n📋 Main Menu:")
-		mainChoice := file.PromptChoice(mainOptions)
+		mainChoice := input.PromptChoice(mainOptions)
 
 		switch mainChoice {
 
 		case 1: // CREATE
-			fmt.Println("\n📁 Create Options:")
-			createChoice := file.PromptChoice(createOptions)
-
-			switch createChoice {
-			case 1: // Import from API
-				var apiUrl string
-				fmt.Print("🔗 Enter API URL: ")
-				fmt.Scan(&apiUrl)
-
-				fmt.Print("📝 Enter File Name (without extension): ")
-				fileName, _ := reader.ReadString('\n')
-				fileName = strings.TrimSpace(fileName)
-				filePath := dirPath + "/" + fileName + ".json"
-
-				if exists, err := check.FileExist(filePath); err != nil {
-					fmt.Println("❗ Error:", err)
-				} else if exists {
-					fmt.Println("⚠️  File already exists.")
-				} else {
-					file.ImportfromAPI(apiUrl, filePath)
-					fmt.Println("✅ API response stored in file.")
+			fmt.Printf("\n📁 Create Options:")
+			for {
+				if invalidCounter >= 3 {
+					fmt.Println("⚠️  Too many invalid attempts. Returning to main menu.")
+					break
 				}
 
-			case 2: // Create and Add Content
-				fmt.Print("📝 Enter File Name (without extension): ")
-				fileName, _ := reader.ReadString('\n')
-				fileName = strings.TrimSpace(fileName)
-				filePath := dirPath + "/" + fileName + ".txt"
+				createChoice := input.PromptChoice(createOptions)
+				switch createChoice {
+				case 1: // Import from API
+					var apiUrl string
+					fmt.Print("🔗 Enter API URL: ")
+					fmt.Scan(&apiUrl)
 
-				if exists, err := check.FileExist(filePath); err != nil {
-					fmt.Println("❗ Error:", err)
-				} else if exists {
-					fmt.Println("⚠️  File already exists.")
-				} else {
-					file.CreateFile(filePath, fileName)
-					fmt.Println("✍️  Write your content (end input with a blank line):")
-					content := file.MultiLineInput()
-					file.WriteFile(filePath, content)
-					fmt.Println("✅ File created and content added.")
+					fmt.Print("📝 Enter File Name (without extension): ")
+					fileName, _ := reader.ReadString('\n')
+					fileName = strings.TrimSpace(fileName)
+					filePath := dirPath + "/" + fileName + ".json"
+
+					if exists, err := check.FileExist(filePath); err != nil {
+						fmt.Println("❗ Error:", err)
+					} else if exists {
+						fmt.Println("⚠️  File already exists.")
+					} else {
+						file.ImportfromAPI(apiUrl, filePath)
+						fmt.Println("✅ API response stored in file.")
+						break // Exit loop after success
+					}
+
+				case 2: // Create and Add Content
+					fmt.Print("📝 Enter File Name (without extension): ")
+					fileName, _ := reader.ReadString('\n')
+					fileName = strings.TrimSpace(fileName)
+					filePath := dirPath + "/" + fileName + ".txt"
+
+					if exists, err := check.FileExist(filePath); err != nil {
+						fmt.Println("❗ Error:", err)
+					} else if exists {
+						fmt.Println("⚠️  File already exists.")
+					} else {
+						file.CreateFile(filePath, fileName)
+						fmt.Println("Start typing your content (type 'END' to finish):")
+						content := input.MultiLineInput()
+						file.WriteFile(filePath, content)
+						fmt.Println("✅ File created and content added.")
+						break
+					}
+
+				default:
+					fmt.Println("❌ Invalid Create option.")
+					invalidCounter++
+					continue
 				}
-
-			default:
-				fmt.Println("❌ Invalid Create option.")
-				invalidCounter++
+				break
 			}
 
 		case 2: // EDIT
@@ -115,12 +126,12 @@ func main() {
 			} else {
 				if check.IsEmpty(filePath) {
 					fmt.Println("📄 File is empty. Enter new content:")
-					updatedContent := file.MultiLineInput()
+					updatedContent := input.MultiLineInput()
 					file.UpdateFile(filePath, updatedContent)
 				} else {
 					fmt.Println("📄 Add Content (end input with a blank line):")
 					file.DisplayFile(filePath)
-					updatedContent := "\n" + file.MultiLineInput()
+					updatedContent := "\n" + input.MultiLineInput()
 					file.UpdateFile(filePath, updatedContent)
 				}
 				fmt.Println("✅ File updated successfully.")
